@@ -11,12 +11,14 @@ namespace DY
   {
     this->port = &Serial;
     this->isSoftSerial = false;
+    this->isAltSoftSerial = false;
   }
 #ifdef HAS_HARDWARE_SERIAL
   Player::Player(HardwareSerial *port)
   {
     this->port = (Stream *)port;
     this->isSoftSerial = false;
+    this->isAltSoftSerial = false;
   }
 #endif
 
@@ -25,6 +27,16 @@ namespace DY
   {
     this->port = (Stream *)port;
     this->isSoftSerial = true;
+    this->isAltSoftSerial = false;
+  }
+#endif
+  
+#ifdef HAS_ALTSOFTSERIAL
+  Player::Player(AltSoftSerial *port)
+  {
+    this->port = (Stream *)port;
+    this->isSoftSerial = false;
+    this->isAltSoftSerial = true;
   }
 #endif
   void Player::begin()
@@ -35,6 +47,13 @@ namespace DY
       ((SoftwareSerial *)port)->begin(9600);
       while (!((SoftwareSerial *)port))
         ; // wait for port to be connected
+#endif
+    }
+    else if (isAltSoftSerial)
+    {
+#ifdef HAS_ALTSOFTSERIAL
+      ((AltSoftSerial *)port)->begin(9600);
+      // AltSoftSerial does not require waiting for connection
 #endif
     }
     else
